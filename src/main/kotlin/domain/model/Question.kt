@@ -7,7 +7,7 @@ abstract class Question<T>(
     val text: String,
     protected val correctAnswer: T
 ) {
-    abstract fun isCorrect(userAnswer: T): Boolean
+    abstract fun isCorrect(userAnswer: Answer<*>): Boolean
     abstract fun getOptions(): List<T>
 }
 
@@ -23,8 +23,8 @@ class MultipleChoiceQuestion(
         }
     }
 
-    override fun isCorrect(userAnswer: String): Boolean =
-        correctAnswer == userAnswer
+    override fun isCorrect(userAnswer: Answer<*>): Boolean =
+        correctAnswer == userAnswer.selectedOption
 
     override fun getOptions(): List<String> = options.toList()
 }
@@ -34,8 +34,8 @@ class TrueFalseQuestion(
     text: String,
     correctAnswer: Boolean
 ) : Question<Boolean>(id, text, correctAnswer) {
-    override fun isCorrect(userAnswer: Boolean): Boolean =
-        correctAnswer == userAnswer
+    override fun isCorrect(userAnswer: Answer<*>): Boolean =
+        correctAnswer == userAnswer.selectedOption
 
     override fun getOptions(): List<Boolean> = listOf(true, false)
 }

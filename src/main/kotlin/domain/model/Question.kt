@@ -3,7 +3,7 @@ package org.example.domain.model
 import java.util.UUID
 
 abstract class Question<T>(
-    val id: UUID = UUID.randomUUID(),
+    val id: UUID,
     val text: String,
     protected val correctAnswer: T
 ) {
@@ -12,7 +12,7 @@ abstract class Question<T>(
 }
 
 class MultipleChoiceQuestion(
-    id: UUID = UUID.randomUUID(),
+    id: UUID,
     text: String,
     private val options: List<String>,
     correctAnswer: String
@@ -30,7 +30,7 @@ class MultipleChoiceQuestion(
 }
 
 class TrueFalseQuestion(
-    id: UUID = UUID.randomUUID(),
+    id: UUID,
     text: String,
     correctAnswer: Boolean
 ) : Question<Boolean>(id, text, correctAnswer) {

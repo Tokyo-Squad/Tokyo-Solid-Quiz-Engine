@@ -8,7 +8,6 @@ import java.util.UUID
 class QuizRepositoryImpl(
     private val quizDataSource: QuizDataSource
 ) : QuizRepository {
-
     override fun createQuiz(quiz: Quiz) {
         require(quiz.questions.isNotEmpty()) {
             DataException.ValidationError("Quiz must have at least one question")

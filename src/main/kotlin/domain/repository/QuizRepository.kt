@@ -6,4 +6,6 @@ import java.util.UUID
 interface QuizRepository {
     fun createQuiz(quiz: Quiz)
     fun getQuizById(id: UUID): Quiz
+    fun getAllQuizzes(): List<Quiz>
+    fun deleteQuiz(id: UUID):Boolean
 }

@@ -1,5 +1,6 @@
 package org.example.domain.usecase
 
+import org.example.domain.model.Answer
 import org.example.domain.model.MultipleChoiceQuestion
 import org.example.domain.model.QuizReport
 import org.example.domain.model.TrueFalseQuestion
@@ -11,32 +12,24 @@ class SubmitQuizUseCase(
     private val repository: QuizRepository,
     private val quizStateManger : QuizStateManager
 ) {
-    operator fun invoke(userAnswer: UserAnswer): QuizReport {
+    operator fun invoke(): QuizReport {
 
-        if (userAnswer.answers.isEmpty()) {
-            return QuizReport(
-                quizTitle = "Empty Quiz",
-                totalQuestions = 0,
-                correctAnswers = 0,
-                incorrectAnswers = 0,
-                finalScore = 0
-            )
-        }
 
-        val quizId = userAnswer.quizId
+        val quizId = quizStateManger.getCurrentQuizId() ?: throw IllegalStateException("No quiz has been started")
         val quiz = repository.getQuizById(quizId)
+        val answers = quizStateManger.getAnswers()
 
         var correctAnswersCount = 0
-
-        for (answer in userAnswer.answers) {
-            val question = quiz.questions.find { it.id == answer.questionId }
-            if (question != null) {
+        for (question in quiz.questions) {
+            val userAnswer = answers[question.id]
+            if (userAnswer != null) {
                 when (question) {
-                    is MultipleChoiceQuestion -> { if(question.isCorrect(answer)) correctAnswersCount++  }
-                    is TrueFalseQuestion -> { if(question.isCorrect(answer)) correctAnswersCount++ }
+                    is MultipleChoiceQuestion -> { if(question.isCorrect(userAnswer.toString())) correctAnswersCount++  }
+                    is TrueFalseQuestion -> { if(question.isCorrect(userAnswer as Boolean)) correctAnswersCount++ }
                 }
             }
         }
+
 
         val totalQuestions = quiz.questions.size
         val incorrectAnswers = totalQuestions - correctAnswersCount

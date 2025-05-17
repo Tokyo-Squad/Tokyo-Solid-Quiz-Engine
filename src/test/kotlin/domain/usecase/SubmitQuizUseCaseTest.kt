@@ -53,10 +53,21 @@ class SubmitQuizUseCaseTest {
                 Answer(question3Id,"5") // Incorrect
             )
         )
+
+        val userAnswers: Map<UUID, Any> = mapOf(
+            question1Id to "Paris",
+            question2Id to false,
+            question3Id to "5"
+        )
+
         every { repository.getQuizById(quizId) } returns quiz
 
+        every { stateManger.getCurrentQuizId() } returns quizId
+        every { stateManger.getAnswers() } returns userAnswers
+
+
         // When
-        val report = submitQuizUseCas.invoke(userAnswer)
+        val report = submitQuizUseCas.invoke()
 
         // Then
         assertThat(report.quizTitle).isEqualTo("Test Quiz")

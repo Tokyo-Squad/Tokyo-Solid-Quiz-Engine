@@ -1,9 +1,9 @@
 package org.example.data.utils
 
-open class DataException(message: String) : Exception(message) {
+open class DataException(message: String, cause: Exception? = null) : Exception(message, cause)
 
-    class NotFound(message: String = "no quiz found") : DataException(message)
+class NotFound(message: String) : DataException(message)
 
-    class ValidationError(message: String = "quiz have a validate problem in creation") : DataException(message)
+class StorageError(message: String, cause: Exception? = null) : DataException(message, cause)
 
-}
+class Unknown(message: String, cause: Exception? = null) : DataException(message, cause)

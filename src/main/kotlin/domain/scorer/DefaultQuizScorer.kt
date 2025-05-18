@@ -12,9 +12,8 @@ class DefaultQuizScorer: QuizScorer {
         userAnswers: UserAnswer
     ): Int {
         var correctAnswersCount = 0
-        val answerMap = userAnswers.answers.associateBy { it.questionId }
         for (question in quiz.questions) {
-            val userAnswer = answerMap[question.id]
+            val userAnswer =  userAnswers.answers.find { it.questionId == question.id }
             if (userAnswer != null) {
                 when (question) {
                     is MultipleChoiceQuestion -> {

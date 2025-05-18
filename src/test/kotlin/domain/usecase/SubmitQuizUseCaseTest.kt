@@ -10,6 +10,7 @@ import org.example.domain.repository.QuizRepository
 import org.example.domain.scorer.QuizScorer
 import org.example.domain.state.QuizStateManager
 import org.example.domain.usecase.SubmitQuizUseCase
+import org.example.domain.utils.NoQuizStartedException
 import org.example.domain.utils.QuizUnknownError
 import org.example.domain.utils.QuizValidationFailed
 import org.junit.jupiter.api.BeforeEach
@@ -76,7 +77,7 @@ class SubmitQuizUseCaseTest {
         every { stateManager.getCurrentQuizId() } returns null
 
         // When & Then
-        assertFailsWith<IllegalStateException> { submitQuizUseCase.invoke() }
+        assertFailsWith<NoQuizStartedException> { submitQuizUseCase.invoke() }
     }
 
     @Test

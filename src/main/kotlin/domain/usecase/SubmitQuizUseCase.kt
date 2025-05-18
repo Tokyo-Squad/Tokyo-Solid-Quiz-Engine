@@ -8,6 +8,7 @@ import org.example.domain.model.UserAnswer
 import org.example.domain.repository.QuizRepository
 import org.example.domain.scorer.QuizScorer
 import org.example.domain.state.QuizStateManager
+import org.example.domain.utils.NoQuizStartedException
 import org.example.domain.utils.QuizNotFound
 import org.example.domain.utils.QuizUnknownError
 import org.example.domain.utils.QuizValidationFailed
@@ -19,7 +20,7 @@ class SubmitQuizUseCase(
 ) {
     operator fun invoke(): QuizReport {
 
-        val quizId = quizStateManger.getCurrentQuizId() ?: throw IllegalStateException("No quiz has been started")
+        val quizId = quizStateManger.getCurrentQuizId() ?: throw NoQuizStartedException("No quiz has been started")
         val quiz =  try {
             repository.getQuizById(quizId)
         } catch (e: Exception) {

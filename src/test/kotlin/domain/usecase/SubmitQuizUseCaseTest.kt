@@ -3,16 +3,17 @@ package domain.usecase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import org.example.domain.model.Answer
 import org.example.domain.model.MultipleChoiceQuestion
 import org.example.domain.model.Quiz
 import org.example.domain.model.TrueFalseQuestion
+import org.example.domain.model.UserAnswer
 import org.example.domain.repository.QuizRepository
 import org.example.domain.scorer.QuizScorer
 import org.example.domain.state.QuizStateManager
 import org.example.domain.usecase.SubmitQuizUseCase
 import org.example.domain.utils.NoQuizStartedException
 import org.example.domain.utils.QuizUnknownError
-import org.example.domain.utils.QuizValidationFailed
 import org.junit.jupiter.api.BeforeEach
 import java.util.UUID
 import kotlin.test.Test
@@ -48,10 +49,13 @@ class SubmitQuizUseCaseTest {
         val quiz = Quiz(quizId, "Test Quiz", questions)
         val correctAnswersCount = 2
 
-        val userAnswers: Map<UUID, Any> = mapOf(
-            question1Id to "Paris", // true
-            question2Id to false, // true
-            question3Id to "5" // false
+        val userAnswers = UserAnswer(
+            quizId = quizId,
+            answers = listOf(
+                Answer(question1Id, "A"), // Correct
+                Answer(question2Id, true), // Correct
+                Answer(question3Id, "Z")  // Incorrect
+            )
         )
 
         every { repository.getQuizById(quizId) } returns quiz

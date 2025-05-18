@@ -1,5 +1,6 @@
 package org.example.domain.state
 
+import org.example.domain.model.UserAnswer
 import java.util.UUID
 
 class QuizStateManagerImpl : QuizStateManager {
@@ -16,7 +17,7 @@ class QuizStateManagerImpl : QuizStateManager {
         TODO("Not yet implemented")
     }
 
-    override fun getAnswers(): Map<UUID, Any> {
+    override fun getAnswers(): UserAnswer {
         TODO("Not yet implemented")
     }
 

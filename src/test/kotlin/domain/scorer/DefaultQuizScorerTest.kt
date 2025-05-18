@@ -1,9 +1,11 @@
 package domain.scorer
 
 import com.google.common.truth.Truth.assertThat
+import org.example.domain.model.Answer
 import org.example.domain.model.MultipleChoiceQuestion
 import org.example.domain.model.Quiz
 import org.example.domain.model.TrueFalseQuestion
+import org.example.domain.model.UserAnswer
 import org.example.domain.scorer.DefaultQuizScorer
 import java.util.UUID
 import kotlin.test.Test
@@ -11,6 +13,7 @@ import kotlin.test.Test
 class DefaultQuizScorerTest {
 
     private val quizScorer = DefaultQuizScorer()
+    private val quizId = UUID.randomUUID()
 
     @Test
     fun `calculateScore should return the correct score for a mix of question types`() {
@@ -24,12 +27,15 @@ class DefaultQuizScorerTest {
         val question3 = MultipleChoiceQuestion(question3Id, "MCQ 2", listOf("X", "Y"), "Y")
 
         val questions = listOf(question1, question2, question3)
-        val quiz = Quiz(UUID.randomUUID(), "Test Quiz", questions)
+        val quiz = Quiz(quizId, "Test Quiz", questions)
 
-        val userAnswers = mapOf(
-            question1Id to "A", // Correct
-            question2Id to false, // Incorrect
-            question3Id to "Y"  // Correct
+        val userAnswers = UserAnswer(
+            quizId = quizId,
+            answers = listOf(
+                Answer(question1Id, "A"), // Correct
+                Answer(question2Id, false), // Incorrect
+                Answer(question3Id, "Y")  // Correct
+            )
         )
 
         // When
@@ -49,11 +55,14 @@ class DefaultQuizScorerTest {
         val question2 = TrueFalseQuestion(question2Id, "TF 1", true)
 
         val questions = listOf(question1, question2)
-        val quiz = Quiz(UUID.randomUUID(), "Test Quiz", questions)
+        val quiz = Quiz(quizId, "Test Quiz", questions)
 
-        val userAnswers = mapOf(
-            question1Id to "B", // Incorrect
-            question2Id to false // Incorrect
+        val userAnswers = UserAnswer(
+            quizId = quizId,
+            answers = listOf(
+                Answer(question1Id, "B"), // Incorrect
+                Answer(question2Id, false) // Incorrect
+            )
         )
 
         // When
@@ -73,9 +82,12 @@ class DefaultQuizScorerTest {
         val question2 = TrueFalseQuestion(question2Id, "TF 1", true)
 
         val questions = listOf(question1, question2)
-        val quiz = Quiz(UUID.randomUUID(), "Test Quiz", questions)
+        val quiz = Quiz(quizId, "Test Quiz", questions)
 
-        val userAnswers = emptyMap<UUID, Any>()
+        val userAnswers = UserAnswer(
+            quizId = quizId,
+            answers = emptyList()
+        )
 
         // When
         val score = quizScorer.calculateScore(quiz, userAnswers)
@@ -93,14 +105,18 @@ class DefaultQuizScorerTest {
 
         val question1 = MultipleChoiceQuestion(question1Id, "MCQ 1", listOf("A", "B"), "A")
         val question2 = TrueFalseQuestion(question2Id, "TF 1", true)
+        val question3 = MultipleChoiceQuestion(question3Id, "MCQ 3", listOf("X", "Y"), "X")
 
-        val questions = listOf(question1, question2, MultipleChoiceQuestion(question3Id, "MCQ 3", listOf("X", "Y"), "X"))
-        val quiz = Quiz(UUID.randomUUID(), "Test Quiz", questions)
+        val questions = listOf(question1, question2, question3)
+        val quiz = Quiz(quizId, "Test Quiz", questions)
 
-        val userAnswers = mapOf(
-            question1Id to "A", // Correct
-            question2Id to true  // Correct
-            // Missing answer for question3
+        val userAnswers = UserAnswer(
+            quizId = quizId,
+            answers = listOf(
+                Answer(question1Id, "A"), // Correct
+                Answer(question2Id, true)  // Correct
+                // Missing answer for question3
+            )
         )
 
         // When
@@ -109,5 +125,4 @@ class DefaultQuizScorerTest {
         // Then
         assertThat(score).isEqualTo(2)
     }
-
 }

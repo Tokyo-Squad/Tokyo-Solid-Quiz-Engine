@@ -5,5 +5,5 @@ open class DomainException(message: String, cause: Exception? = null) : Exceptio
 class QuizNotFound(message: String) : DomainException(message)
 class QuizStorageFailed(message: String, cause: Exception? = null) : DomainException(message, cause)
 class QuizValidationFailed(message: String) : DomainException(message)
-class NoQuizStartedException(message: String = "No quiz has been started") : DomainException(message)
+class NoQuizStartedException(message: String) : DomainException(message)
 class QuizUnknownError(message: String, cause: Exception? = null) : DomainException(message, cause)

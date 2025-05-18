@@ -8,7 +8,7 @@ class QuizRepositoryImpl(
     private val quizDataSource: QuizDataSource
 ) : QuizRepository {
 
-    override fun createQuiz(quiz: Quiz) {
+    override fun createQuiz(title: String): UUID {
         TODO("Not yet implemented")
     }
 

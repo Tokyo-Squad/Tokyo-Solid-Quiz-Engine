@@ -6,6 +6,7 @@ import org.example.domain.model.QuizReport
 import org.example.domain.model.TrueFalseQuestion
 import org.example.domain.model.UserAnswer
 import org.example.domain.repository.QuizRepository
+import org.example.domain.scorer.QuizScorer
 import org.example.domain.state.QuizStateManager
 import org.example.domain.utils.QuizNotFound
 import org.example.domain.utils.QuizUnknownError
@@ -13,7 +14,8 @@ import org.example.domain.utils.QuizValidationFailed
 
 class SubmitQuizUseCase(
     private val repository: QuizRepository,
-    private val quizStateManger : QuizStateManager
+    private val quizStateManger : QuizStateManager,
+    private val quizScorer: QuizScorer
 ) {
     operator fun invoke(): QuizReport {
 
@@ -25,24 +27,8 @@ class SubmitQuizUseCase(
         }
         val answers = quizStateManger.getAnswers()
 
-        var correctAnswersCount = 0
-        for (question in quiz.questions) {
-            val userAnswer = answers[question.id]
-            if (userAnswer != null) {
-                try {
-                    when (question) {
-                        is MultipleChoiceQuestion -> {
-                            if (question.isCorrect(userAnswer.toString())) correctAnswersCount++
-                        }
-                        is TrueFalseQuestion -> {
-                            if (question.isCorrect(userAnswer as Boolean)) correctAnswersCount++
-                        }
-                    }
-                } catch (e: Exception) {
-                    throw QuizValidationFailed("Invalid answer for question ${question.id}: ${e.message}")
-                }
-            }
-        }
+        val correctAnswersCount = quizScorer.calculateScore(quiz, answers)
+
         val totalQuestions = quiz.questions.size
         val incorrectAnswers = totalQuestions - correctAnswersCount
         val finalScore = correctAnswersCount

@@ -7,6 +7,7 @@ import org.example.domain.model.MultipleChoiceQuestion
 import org.example.domain.model.Quiz
 import org.example.domain.model.TrueFalseQuestion
 import org.example.domain.repository.QuizRepository
+import org.example.domain.scorer.QuizScorer
 import org.example.domain.state.QuizStateManager
 import org.example.domain.usecase.SubmitQuizUseCase
 import org.example.domain.utils.QuizUnknownError
@@ -21,12 +22,13 @@ class SubmitQuizUseCaseTest {
 
     private var repository : QuizRepository = mockk(relaxed = true)
     private var stateManager : QuizStateManager = mockk(relaxed = true)
+    private var quizScorer: QuizScorer = mockk()
     private lateinit var submitQuizUseCase : SubmitQuizUseCase
 
 
     @BeforeEach
     fun setUp() {
-        submitQuizUseCase = SubmitQuizUseCase(repository,stateManager)
+        submitQuizUseCase = SubmitQuizUseCase(repository,stateManager,quizScorer)
     }
 
     @Test
@@ -43,16 +45,16 @@ class SubmitQuizUseCaseTest {
         val questions = listOf(question1, question2, question3)
         val quizId = UUID.randomUUID()
         val quiz = Quiz(quizId, "Test Quiz", questions)
-
+        val correctAnswersCount = 2
 
         val userAnswers: Map<UUID, Any> = mapOf(
-            question1Id to "Paris",
-            question2Id to false,
-            question3Id to "5"
+            question1Id to "Paris", // true
+            question2Id to false, // true
+            question3Id to "5" // false
         )
 
         every { repository.getQuizById(quizId) } returns quiz
-
+        every { quizScorer.calculateScore(quiz, userAnswers) } returns correctAnswersCount
         every { stateManager.getCurrentQuizId() } returns quizId
         every { stateManager.getAnswers() } returns userAnswers
 
@@ -89,50 +91,4 @@ class SubmitQuizUseCaseTest {
             .also { assertThat(it.message).contains("Error fetching quiz") }
     }
 
-    @Test
-    fun `invoke should handle empty answers gracefully`() {
-        // Given
-        val question1Id = UUID.randomUUID()
-        val question2Id = UUID.randomUUID()
-
-        val question1 = MultipleChoiceQuestion(question1Id, "Question 1", listOf("A", "B"), "A")
-        val question2 = TrueFalseQuestion(question2Id, "Question 2", true)
-
-        val questions = listOf(question1, question2)
-        val quizId = UUID.randomUUID()
-        val quiz = Quiz(quizId, "Empty Answers Quiz", questions)
-
-        every { stateManager.getCurrentQuizId() } returns quizId
-        every { repository.getQuizById(quizId) } returns quiz
-        every { stateManager.getAnswers() } returns emptyMap()
-        every { stateManager.clearState() } returns Unit
-
-        // When
-        val report = submitQuizUseCase.invoke()
-
-        // Then
-        assertThat(report.quizTitle).isEqualTo("Empty Answers Quiz")
-        assertThat(report.totalQuestions).isEqualTo(2)
-        assertThat(report.correctAnswers).isEqualTo(0)
-        assertThat(report.incorrectAnswers).isEqualTo(2)
-        assertThat(report.finalScore).isEqualTo(0)
-    }
-
-    @Test
-    fun `invoke should throw QuizValidationFailed for invalid true false answer`() {
-        // Given
-        val questionId = UUID.randomUUID()
-        val question = TrueFalseQuestion(questionId, "Question 1", true)
-        val quizId = UUID.randomUUID()
-        val quiz = Quiz(quizId, "Validation Quiz", listOf(question))
-        val userAnswers: Map<UUID, Any> = mapOf(questionId to "yes") // Invalid answer type
-
-        every { stateManager.getCurrentQuizId() } returns quizId
-        every { repository.getQuizById(quizId) } returns quiz
-        every { stateManager.getAnswers() } returns userAnswers
-
-        // When & Then
-        assertFailsWith<QuizValidationFailed> { submitQuizUseCase.invoke() }
-            .also { assertThat(it.message).contains("Invalid answer for question $questionId") }
-    }
 }

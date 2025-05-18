@@ -3,6 +3,6 @@ package org.example.domain.model
 import java.util.UUID
 
 data class Answer<T>(
-    val questionId: UUID = UUID.randomUUID(),
+    val questionId: UUID,
     val selectedOption: T
 )
